@@ -1,0 +1,16 @@
+{
+  "name": "AI-Based Aerial Stampede Detection",
+  "short_name": "Stampede AI",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#04111e",
+  "theme_color": "#04111e",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
