@@ -32,7 +32,7 @@ def history():
 @api_bp.post("/trigger-alert")
 def trigger_alert():
     payload = request.get_json(force=True, silent=True) or {}
-    status = payload.get("status", "WARNING")
-    exit_name = payload.get("exit", "A")
+    status = str(payload.get("status", "WARNING")).upper()
+    exit_name = str(payload.get("exit", "A")).upper()
     result = current_app.alerting.trigger(status, exit_name)
     return jsonify(result)

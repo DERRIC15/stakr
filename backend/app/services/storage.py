@@ -58,15 +58,18 @@ class StorageService:
             conn.executescript(SCHEMA)
             exists = conn.execute("SELECT 1 FROM latest_state WHERE id = 1").fetchone()
             if not exists:
-                now = datetime.utcnow().isoformat()
-                conn.execute(
-                    """
-                    INSERT INTO latest_state (id, status, count, exit, lat, lon, updated_at)
-                    VALUES (1, ?, ?, ?, ?, ?, ?)
-                    """,
-                    ("SAFE", 118, "A", 13.0827, 80.2707, now),
-                )
+                self._seed_latest_state(conn)
         self.seed_history()
+
+    def _seed_latest_state(self, conn):
+        now = datetime.utcnow().isoformat()
+        conn.execute(
+            """
+            INSERT INTO latest_state (id, status, count, exit, lat, lon, updated_at)
+            VALUES (1, ?, ?, ?, ?, ?, ?)
+            """,
+            ("SAFE", 118, "A", 13.0827, 80.2707, now),
+        )
 
     def seed_history(self):
         with self.connection() as conn:
@@ -172,6 +175,9 @@ class StorageService:
     def get_latest_state(self):
         with self.connection() as conn:
             row = conn.execute("SELECT * FROM latest_state WHERE id = 1").fetchone()
+            if row is None:
+                self._seed_latest_state(conn)
+                row = conn.execute("SELECT * FROM latest_state WHERE id = 1").fetchone()
             alerts = conn.execute(
                 "SELECT title, detail, severity, exit, created_at FROM alerts ORDER BY id DESC LIMIT 4"
             ).fetchall()

@@ -15,12 +15,33 @@ def infer_status(count):
 
 
 def normalize_payload(payload):
-    count = int(payload.get("count", 0))
-    status = payload.get("status") or infer_status(count)
+    try:
+        count = int(payload.get("count", 0))
+    except (TypeError, ValueError):
+        count = 0
+
+    status = str(payload.get("status") or infer_status(count)).upper()
+    if status not in {"SAFE", "WARNING", "DANGER"}:
+        status = infer_status(count)
+
+    exit_name = str(payload.get("exit") or infer_exit(count, status)).upper()
+    if exit_name not in {"A", "B"}:
+        exit_name = infer_exit(count, status)
+
+    try:
+        lat = float(payload.get("lat", 13.0827))
+    except (TypeError, ValueError):
+        lat = 13.0827
+
+    try:
+        lon = float(payload.get("lon", 80.2707))
+    except (TypeError, ValueError):
+        lon = 80.2707
+
     return {
         "status": status,
         "count": count,
-        "exit": payload.get("exit") or infer_exit(count, status),
-        "lat": float(payload.get("lat", 13.0827)),
-        "lon": float(payload.get("lon", 80.2707)),
+        "exit": exit_name,
+        "lat": lat,
+        "lon": lon,
     }
